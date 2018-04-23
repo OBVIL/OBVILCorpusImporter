@@ -10,7 +10,6 @@ from spiders.obvil_bib_spider import (
     ObvilMoliereSpider
 )
 
-# spider = ObvilBibTEISpider(save_folder='/Users/hanoka/obvil/fetch_bib/fetch_bib/data')
 spiders = [
     ObvilBibTEISpider(),
     ObvilBaseCritiqueSpider(),
