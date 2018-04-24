@@ -20,7 +20,7 @@ class ObvilBaseSpider(scrapy.Spider):
 
     def __init__(self, save_directory, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.save_directory = save_directory
+        self.save_directory = save_directory.rstrip('/')
 
     def errback_obvil_files(self, failure):
         """Logs all failures"""
@@ -120,8 +120,8 @@ class ObvilUnconventional(ObvilBaseSpider):
 
     name = "obvil_unconventional_tei_spider"
 
-    corpus_name = ''  # EG. "critique", "ecole"
-    corpora = []
+    corpus_name = ''  # E.g. "ecole"
+    corpora = []      # E.g. ["manuels"]
 
     def __init__(self, save_directory, *args, **kwargs):
         super().__init__(save_directory=save_directory, *args, **kwargs)
@@ -197,17 +197,9 @@ class ObvilBaseCritiqueSpider(ObvilUnconventional):
     def __init__(self, save_directory, *args, **kwargs):
 
         super().__init__(save_directory=save_directory, *args, **kwargs)
-
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
 
-        # REGEXPS
-        self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
-            'http://132.227.201.10:8086/corpus/'
-            '(?P<corpus_name>%s)/'
-            '(?P<format>[^/]*)?/?'
-            '(?P<file_name>[^\.]*)\.'
-            '(?P<file_ext>.*)' % self.corpus_name)
 
 
 class ObvilEcoleSpider(ObvilUnconventional):
@@ -222,13 +214,6 @@ class ObvilEcoleSpider(ObvilUnconventional):
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
 
-        # REGEXPS
-        self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
-            'http://132.227.201.10:8086/corpus/'
-            '(?P<corpus_name>%s)/'
-            '(?P<format>[^/]*)?/?'
-            '(?P<file_name>[^\.]*)\.'
-            '(?P<file_ext>.*)' % self.corpus_name)
 
 
 class ObvilMoliereSpider(ObvilUnconventional):
@@ -241,12 +226,32 @@ class ObvilMoliereSpider(ObvilUnconventional):
 
         super().__init__(save_directory=save_directory, *args, **kwargs)
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
-        self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
+        self.start_urls = ["http://132.227.201.10:8086/corpus/%s/epub/" % self.corpus_name]
 
-        # REGEXPS
-        self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
-            'http://132.227.201.10:8086/corpus/'
-            '(?P<corpus_name>%s)/'
-            '(?P<format>[^/]*)?/?'
-            '(?P<file_name>[^\.]*)\.'
-            '(?P<file_ext>.*)' % self.corpus_name)
+    def parse(self, response):
+
+        # Gathering the documents which constitutes the corpus
+        links = response.xpath('//body/table//a/@href').extract()
+
+        for link in links:
+
+            # A document is only valid if it's in xml format.
+            if '.epub' in link:
+
+                file_name = link.rsplit('.epub')[0]
+                self.logger.info("••••••••••••••••••••••••••••••••• Found epub file %s (%s)" % (file_name, link))
+
+                # Get related documents in other formats
+                for doc_format, ext in self.available_formats.items():
+
+                    if doc_format == 'xml':
+                        for corpus in self.corpora:
+                            related_file = "%s%s/%s%s" % (self.start_url, corpus, file_name, ext )
+                    else:
+                        related_file = "%s%s/%s%s" % (self.start_url, doc_format, file_name, ext)
+
+                    yield scrapy.Request(
+                        related_file,
+                        callback=self.harvest_file,
+                        errback=self.errback_obvil_files,
+                    )
