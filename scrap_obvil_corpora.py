@@ -1,6 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from optparse import OptionParser
 
 from scrapy.crawler import CrawlerProcess
 from spiders.obvil_bib_spider import (
@@ -10,19 +10,30 @@ from spiders.obvil_bib_spider import (
     ObvilMoliereSpider
 )
 
-spiders = [
-    ObvilBibTEISpider(),
-    ObvilBaseCritiqueSpider(),
-    ObvilEcoleSpider(),
-    ObvilMoliereSpider()
-]
+if __name__ == "__main__":
 
-process = CrawlerProcess({
-    'USER_AGENT': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 Firefox/59.0'
-})
+    usage = """usage: ./%prog [--saveInDirectory]
+    Crawls the OBVIL Corpora available at http://obvil.sorbonne-universite.site/bibliotheque and
+    saves XML/TEI and epub texts in the specified directory.
+    """
+    parser = OptionParser(usage)
+    parser.add_option("-s", "--saveInDirectory",
+                      dest="save_directory",
+                      default='crawled_data',
+                      help="Saves the corpus info in the specified directory.")
+    (options, args) = parser.parse_args()
 
+    spiders = [
+        ObvilBibTEISpider,
+        ObvilBaseCritiqueSpider,
+        ObvilEcoleSpider,
+        ObvilMoliereSpider
+    ]
 
-for spider in spiders:
-    process.crawl(spider)
+    process = CrawlerProcess({
+        'USER_AGENT': 'Pasted from github (+https://github.com/Valerie-Hanoka)'
+    })
+
+    for spider in spiders:
+        process.crawl(spider, save_directory=options.save_directory)
     process.start()
-

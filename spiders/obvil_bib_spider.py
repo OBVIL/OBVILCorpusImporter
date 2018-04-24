@@ -13,21 +13,21 @@ class ObvilBaseSpider(scrapy.Spider):
 
     name = "obvil_base_spider"
 
-    save_folder = 'data'
-
     available_formats = {
         'epub': '.epub',
         'xml': '.xml',
     }
 
-    def __init__(self, save_folder='data'):
-        self.save_folder = save_folder
+    def __init__(self, save_directory, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.save_directory = save_directory
 
     def errback_obvil_files(self, failure):
-        # log all failures
+        """Logs all failures"""
         self.logger.error(repr(failure))
 
-    def harvest_file_metadata(self, response):
+    def harvest_file(self, response):
+        """ Find and download a XML-TEI or epub file."""
 
         file_info = {}
         url_match = re.match(self.RE_OBVIL_CORPUS_FILE_URL, response.url)
@@ -35,7 +35,7 @@ class ObvilBaseSpider(scrapy.Spider):
         if url_match:
             file_info.update(url_match.groupdict())
 
-        collection_folder = u'%s/%s' % (self.save_folder, file_info['corpus_name'])
+        collection_folder = u'%s/%s' % (self.save_directory, file_info['corpus_name'])
         if not os.path.exists(collection_folder):
             os.makedirs(collection_folder)
         
@@ -47,8 +47,9 @@ class ObvilBaseSpider(scrapy.Spider):
         
         with open(local_filename, 'wb') as f:
             f.write(response.body)
-
+            pass
         yield file_info
+
 
 ########################################
 #     Parsing canonical corpora
@@ -100,14 +101,12 @@ class ObvilBibTEISpider(ObvilBaseSpider):
                 self.logger.info("••••••••••••••••••••••••••••••••• Found text file %s (%s)" % (file_name, link))
 
                 # Get related documents in other formats
-                other_formats = {}
                 for doc_format, ext in self.available_formats.items():
                     related_file = "%s/%s/%s%s" % (corpus_location, doc_format, file_name, ext)
 
-                    # I'd like to get the information returned by self.harvest_file_metadata()...
                     yield scrapy.Request(
                         related_file,
-                        callback=self.harvest_file_metadata,
+                        callback=self.harvest_file,
                         errback=self.errback_obvil_files,
                     )
 
@@ -124,7 +123,8 @@ class ObvilUnconventional(ObvilBaseSpider):
     corpus_name = ''  # EG. "critique", "ecole"
     corpora = []
 
-    def __init__(self, save_folder):
+    def __init__(self, save_directory, *args, **kwargs):
+        super().__init__(save_directory=save_directory, *args, **kwargs)
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
 
@@ -135,10 +135,6 @@ class ObvilUnconventional(ObvilBaseSpider):
             '(?P<format>[^/]*)?/?'
             '(?P<file_name>[^\.]*)\.'
             '(?P<file_ext>.*)' % self.corpus_name)
-
-        super(ObvilUnconventional).__init__(save_folder)
-
-
 
     def parse(self, response):
 
@@ -154,7 +150,6 @@ class ObvilUnconventional(ObvilBaseSpider):
                 self.logger.info("••••••••••••••••••••••••••••••••• Found text file %s (%s)" % (file_name, link))
 
                 # Get related documents in other formats
-                other_formats = {}
                 for doc_format, ext in self.available_formats.items():
 
                     if doc_format == 'xml':
@@ -162,10 +157,9 @@ class ObvilUnconventional(ObvilBaseSpider):
                     else:
                         related_file = "%s%s/%s%s" % (self.start_url, doc_format, file_name, ext)
 
-                    # I'd like to get the information returned by self.harvest_file_metadata()...
                     yield scrapy.Request(
                         related_file,
-                        callback=self.harvest_file_metadata,
+                        callback=self.harvest_file,
                         errback=self.errback_obvil_files,
                     )
 
@@ -200,11 +194,12 @@ class ObvilBaseCritiqueSpider(ObvilUnconventional):
         "visan", "vogue", "voltaire", "weiss", "wilde", "wyzewa", "zola", "gautier-judith", "geoffroy"
     ]
 
-    def __init__(self, save_folder='data'):
+    def __init__(self, save_directory, *args, **kwargs):
+
+        super().__init__(save_directory=save_directory, *args, **kwargs)
 
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
-        self.save_folder = save_folder
 
         # REGEXPS
         self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
@@ -221,11 +216,11 @@ class ObvilEcoleSpider(ObvilUnconventional):
     corpus_name = 'ecole'
     corpora = ['manuels']
 
-    def __init__(self, save_folder='data'):
+    def __init__(self, save_directory, *args, **kwargs):
 
+        super().__init__(save_directory=save_directory, *args, **kwargs)
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
-        self.save_folder = save_folder
 
         # REGEXPS
         self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
@@ -242,11 +237,11 @@ class ObvilMoliereSpider(ObvilUnconventional):
     corpus_name = 'moliere'
     corpora = ['critique']
 
-    def __init__(self, save_folder='data'):
+    def __init__(self, save_directory, *args, **kwargs):
 
+        super().__init__(save_directory=save_directory, *args, **kwargs)
         self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
         self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
-        self.save_folder = save_folder
 
         # REGEXPS
         self.RE_OBVIL_CORPUS_FILE_URL = re.compile(
