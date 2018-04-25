@@ -25,10 +25,10 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     spiders = [
-        #ObvilBibTEISpider,
-        #ObvilBaseCritiqueSpider,
-        #ObvilEcoleSpider,
-        #ObvilMoliereSpider,
+        ObvilBibTEISpider,
+        ObvilBaseCritiqueSpider,
+        ObvilEcoleSpider,
+        ObvilMoliereSpider,
         ObvilGongoraSpider
     ]
 

@@ -86,7 +86,6 @@ class ObvilBibTEISpider(ObvilBaseSpider):
         'apollinaire',
         'challe',
         'danse',
-        'ecole',
         'gongora',
         'haine-theatre',
         'historiographie-theatre',
@@ -94,6 +93,8 @@ class ObvilBibTEISpider(ObvilBaseSpider):
         'mercure-galant',
         'mythographie',
         'sainte-beuve',
+        'faceties',
+        'valery',
     ]
 
     # One URL per corpus
@@ -230,6 +231,19 @@ class ObvilEcoleSpider(ObvilUnconventional):
 
     corpus_name = 'ecole'
     corpora = ['manuels']
+
+    def __init__(self, save_directory, *args, **kwargs):
+
+        super().__init__(save_directory=save_directory, *args, **kwargs)
+        self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
+        self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
+
+
+class ObvilGongoraSpider(ObvilUnconventional):
+    name = "obvil_gongora_bib_tei_spider"
+
+    corpus_name = 'gongora'
+    corpora = ['gongoraobra', 'polemos']
 
     def __init__(self, save_directory, *args, **kwargs):
 
