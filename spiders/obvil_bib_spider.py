@@ -16,6 +16,7 @@ class ObvilBaseSpider(scrapy.Spider):
     available_formats = {
         'epub': '.epub',
         'xml': '.xml',
+        'html': '.html'
     }
 
     def __init__(self, save_directory, *args, **kwargs):
@@ -66,10 +67,9 @@ class ObvilBaseSpider(scrapy.Spider):
 
         # If the file is already stored in the collection directory,
         # we create a symbolic link from it to the save_directory
-        # in order to neable mass import from sideload.
+        # in order to enable mass import from sideload.
         if is_file_xml:
             os.symlink(local_filename, u"%s/%s" % (self.save_directory, base_filename))
-
 
         yield file_info
 

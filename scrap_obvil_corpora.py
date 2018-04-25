@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     usage = """usage: ./%prog [--saveInDirectory]
     Crawls the OBVIL Corpora available at http://obvil.sorbonne-universite.site/bibliotheque and
-    saves XML/TEI and epub texts in the specified directory.
+    saves XML/TEI, epub and html versions of the same texts in the specified directory.
     """
     parser = OptionParser(usage)
     parser.add_option("-s", "--saveInDirectory",
