@@ -7,7 +7,8 @@ from spiders.obvil_bib_spider import (
     ObvilBibTEISpider,
     ObvilBaseCritiqueSpider,
     ObvilEcoleSpider,
-    ObvilMoliereSpider
+    ObvilMoliereSpider,
+    ObvilGongoraSpider
 )
 
 if __name__ == "__main__":
@@ -24,10 +25,11 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     spiders = [
-        ObvilBibTEISpider,
-        ObvilBaseCritiqueSpider,
-        ObvilEcoleSpider,
-        ObvilMoliereSpider
+        #ObvilBibTEISpider,
+        #ObvilBaseCritiqueSpider,
+        #ObvilEcoleSpider,
+        #ObvilMoliereSpider,
+        ObvilGongoraSpider
     ]
 
     process = CrawlerProcess({
