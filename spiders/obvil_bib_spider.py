@@ -35,19 +35,33 @@ class ObvilBaseSpider(scrapy.Spider):
         if url_match:
             file_info.update(url_match.groupdict())
 
-        collection_folder = u'%s/%s' % (self.save_directory, file_info['corpus_name'])
-        if not os.path.exists(collection_folder):
-            os.makedirs(collection_folder)
-        
-        local_filename = u"%s/%s.%s" % (
-            collection_folder,
+        local_filename = u"%s_%s.%s" % (
+            file_info['corpus_name'],
             file_info['file_name'],
             file_info['file_ext'],
         )
-        
+
+        # The XML-TEIs are stored by collections, in different folders in the save_directory
+        if file_info['file_ext'] == 'xml':
+            collection_folder = u'%s/%s' % (self.save_directory, file_info['corpus_name'])
+            if not os.path.exists(collection_folder):
+                os.makedirs(collection_folder)
+
+            local_filename = u"%s/%s" % (
+                collection_folder,
+                local_filename
+            )
+
+        # Whereas the epubs (and other formats) are stored altogether in the save_directory
+        # This is done for Omeka-s sideload import, which requires
+        else:
+            local_filename = u"%s/%s" % (
+                self.save_directory,
+                local_filename
+            )
+
         with open(local_filename, 'wb') as f:
             f.write(response.body)
-            pass
         yield file_info
 
 
