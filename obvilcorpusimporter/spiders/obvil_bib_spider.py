@@ -36,40 +36,35 @@ class ObvilBaseSpider(scrapy.Spider):
         if url_match:
             file_info.update(url_match.groupdict())
 
-        base_filename = u"%s_%s.%s" % (
+        base_filename = u"%s_%s" % (
             file_info['corpus_name'],
             file_info['file_name'],
-            file_info['file_ext'],
         )
+
+        collection_folder = u'%s/%s' % (self.save_directory, file_info['corpus_name'])
 
         # The XML-TEIs are stored by collections, in different folders in the save_directory
         is_file_xml = file_info['file_ext'] == 'xml'
         if is_file_xml:
-            collection_folder = u'%s/%s' % (self.save_directory, file_info['corpus_name'])
             if not os.path.exists(collection_folder):
                 os.makedirs(collection_folder)
 
-            local_filename = u"%s/%s" % (
+            local_filename = u"%s/%s.xml" % (
                 collection_folder,
-                base_filename
+                file_info['file_name']
             )
 
-        # Whereas the epubs (and other formats) are stored altogether in the save_directory
-        # This is done for Omeka-s sideload import, which requires
-        else:
-            local_filename = u"%s/%s" % (
-                self.save_directory,
-                base_filename
+            with open(local_filename, 'wb') as f:
+                f.write(response.body)
+
+        # All the documents URL are stored in a csv file
+        url_list_filename = u"%s/%s.csv" % (
+                collection_folder,
+                file_info['file_name']
             )
 
-        with open(local_filename, 'wb') as f:
-            f.write(response.body)
-
-        # If the file is already stored in the collection directory,
-        # we create a symbolic link from it to the save_directory
-        # in order to enable mass import from sideload.
-        if is_file_xml:
-            os.symlink(local_filename, u"%s/%s" % (self.save_directory, base_filename))
+        with open(url_list_filename, 'a') as f:
+            f.write(u"%s\t%s\n" % (file_info['file_ext'], response.url))
 
         yield file_info
 
