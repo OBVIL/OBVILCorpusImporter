@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 from optparse import OptionParser
 
 from scrapy.crawler import CrawlerProcess
@@ -43,8 +44,17 @@ def crawl_obvil(save_directory='crawled_data'):
 if __name__ == "__main__":
 
     usage = """usage: ./%prog [--saveInDirectory]
-    Crawls the OBVIL Corpora available at http://obvil.sorbonne-universite.site/bibliotheque and
-    saves XML/TEI, epub and html versions of the same texts in the specified directory.
+    Crawls the specified OBVIL Corpora available at http://obvil.sorbonne-universite.site/bibliotheque and:
+        • saves XML/TEI version of the texts in the specified directory;
+        • extract the relevant header meta-data to be exposed in the OAI-PMH repository
+        • create a thumbnail ("vignette") for each document.
+        • builds one Omeka csv import file per specified project with all the necessary information.
+    
+    To have an example of configuration files, see ../configs/.
+    To successfully import the documents into the OAI-PMH repository, you will need to:
+        • Run this script with the right options and configuration
+        • Put the generated vignettes at the right place on the server
+        • Manually import the generated CSV file into Omeka, with proper rights and mappings.  
     """
     parser = OptionParser(usage)
     parser.add_option("-s", "--saveInDirectory",
@@ -59,7 +69,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     # Crawling
-    #crawl_obvil(options.save_directory)
+    crawl_obvil(options.save_directory)
 
     # Extracting XML-TEI documents metadata
     if options.config_file:
@@ -72,7 +82,4 @@ if __name__ == "__main__":
     else:
         logging.error("No configuration file given for TEI metadata extraction")
         exit(1)
-
-    # Pushing every item in Omeka
-    # TODO
 
