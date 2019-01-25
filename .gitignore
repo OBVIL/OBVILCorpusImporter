@@ -109,3 +109,4 @@ ENV/
 
 # project
 configs/
+obvilcorpusimporter/crawled_data
