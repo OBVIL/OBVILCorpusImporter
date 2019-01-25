@@ -29,15 +29,12 @@ def tei_to_omeka_header(csv_header_info):
     xml_tag_to_voc = {
         u"#fileDesc#titleStmt_title": u"dc:title",
         u"#fileDesc#titleStmt_author_key": u"dc:creator",
-        u"#fileDesc#editionStmt#respStmt": u"dc:contributor",
-        u"#fileDesc#publicationStmt_publisher": u"dc:publisher",
-        u"#profileDesc#creation_when": u"dc:date",
+        u"#fileDesc#sourceDesc#bibl_publisher": u"dc:publisher",
+        u"#fileDesc#sourceDesc#bibl_pubPlace": u"pubPlace",
+        u"#profileDesc#sourceDesc#bibl_date": u"dc:date",
         u"#profileDesc#langUsage_ident": u"dc:language",
         u"#fileDesc#publicationStmt_idno": u"dc:identifier",  # Obligatoire
-        u"#fileDesc#titleStmt_editor_key": u"http://schema.org/editor",
-        u'#fileDesc#publicationStmt#availability#licence': u"dc:rights",
-        u"#fileDesc#publicationStmt#availability#licence_": u"dc:rights",
-        u"#fileDesc#publicationStmt#licence": u"dc:rights",
+        u"#fileDesc#publicationStmt#availability#licence_target": u"dc:rights",
     }
 
     new_csv_header_info = {xml_tag_to_voc.get(k, k): v for (k, v) in csv_header_info.items()}
@@ -97,6 +94,12 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
                 )
 
             csv_header_info["dc:identifier"] = document.OMEKA_SPLIT_CHAR.join(links_to_document)
+
+            if u"pubPlace" in csv_header_info:
+                publisher = csv_header_info.get("dc:publisher")
+                pubPlace = csv_header_info.get("pubPlace")
+                csv_header_info["dc:publisher"] = str(publisher) + " (" + str(pubPlace) + ") "
+                del csv_header_info["pubPlace"]
 
             # Producing the vignette
             image_identifier = "%s_%s" % (corpus_tag, identifier)
