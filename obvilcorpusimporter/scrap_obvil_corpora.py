@@ -22,8 +22,7 @@ import json
 #                          CRAWLING
 ###########################################################
 
-def crawl_obvil(save_directory='crawled_data'):
-    """ Crawl the OBVIL Library."""
+"""def crawl_obvil(save_directory='crawled_data'):
     spiders = [
         ObvilBibTEISpider,
         ObvilBaseCritiqueSpider,
@@ -38,8 +37,19 @@ def crawl_obvil(save_directory='crawled_data'):
 
     for spider in spiders:
         process.crawl(spider, save_directory=save_directory)
-    process.start()
+    process.start()"""
 
+def crawl_obvil(save_directory='crawled_data'):
+    """ Crawl the OBVIL Library."""
+    spiders = [ObvilBibTEISpider]
+
+    process = CrawlerProcess({
+        'USER_AGENT': 'Pasted from github (+https://github.com/Valerie-Hanoka)'
+    })
+
+    for spider in spiders:
+        process.crawl(spider, save_directory=save_directory)
+    process.start()
 
 if __name__ == "__main__":
 

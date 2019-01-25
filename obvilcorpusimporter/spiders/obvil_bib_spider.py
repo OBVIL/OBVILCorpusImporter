@@ -73,13 +73,7 @@ class ObvilBaseSpider(scrapy.Spider):
 #     Parsing canonical corpora
 ########################################
 
-class ObvilBibTEISpider(ObvilBaseSpider):
-    name = "obvil_bib_tei_spider"
-
-    corpora = [
-        'fabula-numerica',
-        'apollinaire',
-        'challe',
+"""    corpora = [
         'danse',
         'gongora',
         'haine-theatre',
@@ -90,7 +84,12 @@ class ObvilBibTEISpider(ObvilBaseSpider):
         'sainte-beuve',
         'faceties',
         'valery',
-    ]
+    ]"""
+
+class ObvilBibTEISpider(ObvilBaseSpider):
+    name = "obvil_bib_tei_spider"
+
+    corpora = ['danse']
 
     # One URL per corpus
     start_urls = ['http://132.227.201.10:8086/corpus/%s/xml' % c for c in corpora]
