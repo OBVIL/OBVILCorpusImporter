@@ -35,6 +35,7 @@ def tei_to_omeka_header(csv_header_info):
         u"#profileDesc#langUsage_language_ident": u"dc:language",
         u"#fileDesc#publicationStmt_idno": u"dc:identifier",  # Obligatoire
         u"#fileDesc#publicationStmt#availability_licence_target": u"dc:rights",
+        u"#fileDesc#sourceDesc#bibl_ref_target":u"dc:relation",
     }
 
     new_csv_header_info = {xml_tag_to_voc.get(k, k): v for (k, v) in csv_header_info.items()}
@@ -78,8 +79,9 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
             # Translating TEI headers to Semantic Web relations
             csv_header_info = tei_to_omeka_header(csv_header_info)
 
+            #print('csv_header_info_tei' + str(csv_header_info)) = ne trouve que 3 dc:langue
             # Adding other attributes
-            csv_header_info.update({u"dc:format": "text/xml; text/epub"})
+            csv_header_info.update({u"dc:format": "application/xml; application/epub+zip"})
 
             # Usually, the identifiers given in the XML-TEI are faulty.
 
@@ -100,6 +102,10 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
             csv_header_info["dc:identifier"] = document.OMEKA_SPLIT_CHAR.join(links_to_document)
             """
 
+            #Delete 'dcterms:source'
+            if u"dcterms:source" in csv_header_info:
+                del csv_header_info["dcterms:source"]
+
 
             # Normalized form for 'dc:publisher'
             if u"pubPlace" in csv_header_info:
@@ -108,12 +114,24 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
                 csv_header_info["dc:publisher"] = str(publisher) + " (" + str(pubPlace) + ") "
                 del csv_header_info["pubPlace"]
 
+            # Normalized dc:language
+            lang_normalized = {'fr':'fre','en':'eng','it':'ita', 'la':'lat'}
+            if csv_header_info[u"dc:language"] in lang_normalized.keys():
+                not_normalized = csv_header_info[u"dc:language"]
+                csv_header_info[u"dc:language"] = lang_normalized[not_normalized]
+
+            # author for vignette
+            author = csv_header_info.get("dc:creator", "Anonyme")
+            if ";" in author:
+                author = author.replace(";","\n")
+
+
             # Producing the vignette
             image_identifier = "%s_%s" % (corpus_tag, identifier)
             create_image(
                 identifier=image_identifier,
                 title=csv_header_info.get("dc:title", "Sans titre"),
-                author=csv_header_info.get("dc:creator", "Anonyme"),
+                author=author,
                 save_in_folder=omeka_csv_folder
             )
 
@@ -122,9 +140,18 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
                 'vignette : http://132.227.201.10:8086/corpus/vignettes_corpus/%s.png' % image_identifier
 
             #csv_header_info['dc:rights'] = u'Copyright © 2018 Université Paris-Sorbonne, agissant pour le Laboratoire d’Excellence « Observatoire de la vie littéraire » (ci-après dénommé OBVIL). Ces ressources électroniques protégées par le code de la propriété intellectuelle sur les bases de données (L341-1) sont mises à disposition de la communauté scientifique internationale par l’OBVIL, selon les termes de la licence Creative Commons : « Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France (CC BY-NC-ND 3.0 FR) ». Attribution : afin de référencer la source, toute utilisation ou publication dérivée de cette ressource électroniques comportera le nom de l’OBVIL et surtout l’adresse Internet de la ressource. Pas d’Utilisation Commerciale : dans l’intérêt de la communauté scientifique, toute utilisation commerciale est interdite. Pas de Modification : l’OBVIL s’engage à améliorer et à corriger cette ressource électronique, notamment en intégrant toutes les contributions extérieures, la diffusion de versions modifiées de cette ressource n’est pas souhaitable.'
+
+            # Add 'dc:rights'
+            csv_header_info['dc:rights'] = u'http://creativecommons.org/licenses/by-nc-nd/3.0/fr/'
+
+            # Add 'dc:type'
+            csv_header_info['dc:type'] =u'text'
+
             corpus_info[document_file] = csv_header_info
             csv_headers.update(csv_header_info.keys())
             del document
+
+
 
         csv_file = u'%s/%s.csv' % (omeka_csv_folder, corpus_tag)
 

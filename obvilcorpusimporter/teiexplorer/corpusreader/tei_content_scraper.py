@@ -136,6 +136,12 @@ class TeiContent(DocumentContent):
         if ark_id:
             self.header_metadata[u'ark'] = (0, ark_id)
 
+        # Adding language from xml:lang="" <TEI> if language not in header_metadata
+        language_tei = self.etree_root.attrib.get('{http://www.w3.org/XML/1998/namespace}lang', None)
+
+        if '_#profileDesc#langUsage#language:ident' not in self.header_metadata:
+            if language_tei:
+                self.header_metadata[u'_#profileDesc#langUsage#language:ident'] = (0, language_tei)
         # Cleaning useless or empty entries
         self.__clean_metadata()
 
@@ -239,6 +245,7 @@ class TeiContent(DocumentContent):
 
         self._transform_header_metadata_with_keyword()
 
+
     def _transform_header_metadata_with_keyword(self):
         """ In order to be able to access easily each type of information,
          this function ensures that the key of the metadata dict is a simple entrypoint
@@ -292,7 +299,6 @@ class TeiContent(DocumentContent):
         }
 
         """
-
         new_dic = {}
         for (k, v) in self.header_metadata.items():
             if v:
@@ -303,9 +309,12 @@ class TeiContent(DocumentContent):
                     (xml_key, xml_attribute) = (xml_key_with_optional_attribute, xml_key_with_optional_attribute)
 
                 current_attribute_dict = {xml_key: {xml_parent: {xml_attribute: v}}}
+
                 new_dic = merge_two_dicts(new_dic, current_attribute_dict)
 
         self.header_metadata = new_dic
+
+
 
     #########################
     #  ADDING CONTENT TO TEI
@@ -438,6 +447,7 @@ class TeiContent(DocumentContent):
         )
 
         by_xpath = {}
+
         for (key, value) in flattened_header_metadata:
 
             match = re.match(r'^(?P<chunkA>[^_]*)__(?P<path>[^_]*)_(?P<chunkB>[^_]*)$', key)
@@ -453,8 +463,12 @@ class TeiContent(DocumentContent):
                     elem = {chunkb: value}
                 by_xpath[path] = elem
 
+        #print('flattened_header_metadata' + str(flattened_header_metadata))
+
         by_csv_column = {}
         source = {}
+
+
         for (path, value) in by_xpath.items():
 
             # Finding and organizing Contributors
@@ -469,7 +483,6 @@ class TeiContent(DocumentContent):
                     else:
                         logging.warning("Ignoring contributor '%s' (%s)" % (name[1], self.filePath))
                 by_csv_column[path] = self.OMEKA_SPLIT_CHAR.join(afnor_names)
-
 
             # Finding sources
             elif '#fileDesc#sourceDesc' == path or path == '#fileDesc#sourceDesc#bibl_target':
