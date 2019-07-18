@@ -73,13 +73,7 @@ class ObvilBaseSpider(scrapy.Spider):
 #     Parsing canonical corpora
 ########################################
 
-class ObvilBibTEISpider(ObvilBaseSpider):
-    name = "obvil_bib_tei_spider"
-
-    corpora = [
-        'fabula-numerica',
-        'apollinaire',
-        'challe',
+"""    corpora = [
         'danse',
         'gongora',
         'haine-theatre',
@@ -87,9 +81,23 @@ class ObvilBibTEISpider(ObvilBaseSpider):
         'mdf-italie',
         'mercure-galant',
         'mythographie',
-        'sainte-beuve',
         'faceties',
         'valery',
+    ]"""
+
+class ObvilBibTEISpider(ObvilBaseSpider):
+    name = "obvil_bib_tei_spider"
+
+    corpora = [
+        'danse',
+        'gongora',
+        'haine-theatre',
+        'historiographie-theatre',
+        'mdf-italie',
+        'mercure-galant',
+        'mythographie',
+        'apollinaire',
+        'challe'
     ]
 
     # One URL per corpus
@@ -226,6 +234,18 @@ class ObvilEcoleSpider(ObvilUnconventional):
 
     corpus_name = 'ecole'
     corpora = ['manuels']
+
+    def __init__(self, save_directory, *args, **kwargs):
+
+        super().__init__(save_directory=save_directory, *args, **kwargs)
+        self.start_url = "http://132.227.201.10:8086/corpus/%s/" % self.corpus_name
+        self.start_urls = ['%s%s' % (self.start_url, c) for c in self.corpora]
+
+class ObvilSainteBeuveSpider(ObvilUnconventional):
+    name = "obvil_saintebeuve_bib_tei_spider"
+
+    corpus_name = 'sainte-beuve'
+    corpora = ['causeries']
 
     def __init__(self, save_directory, *args, **kwargs):
 

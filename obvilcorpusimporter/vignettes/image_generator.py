@@ -42,7 +42,8 @@ def create_image(identifier, title, author, save_in_folder='.'):
     end_of_logo = logo_h + BIG_H_SPACE
 
     # Title
-    para_title = textwrap.wrap(title, width=40)
+
+    para_title = textwrap.wrap(title, width=35)
     current_h, pad = end_of_logo, interline
     for line in para_title:
         w, h = draw.textsize(line, font=BOLD)
@@ -50,11 +51,19 @@ def create_image(identifier, title, author, save_in_folder='.'):
         current_h += h + pad
 
     # Author
-    para_author = textwrap.wrap(author, width=40)
-    current_h, pad = current_h + BIG_H_SPACE, pad
-    for line in para_author:
-        w, h = draw.textsize(line, font=NORMAL)
-        draw.text(((MAX_W - w) / 2, current_h), line, TEXT_COLOR, font=NORMAL)
-        current_h += h + pad
+    author_list = []
+    if "\n" in author:
+        for ref in author.split('\n'):
+            author_list.append(ref)
+    else:
+        author_list.append(author)
+
+    for ref_author in author_list:
+        para_author = textwrap.wrap(ref_author, width=45, replace_whitespace=False)
+        current_h, pad = current_h, pad
+        for line in para_author:
+            w, h = draw.textsize(line, font=NORMAL)
+            draw.text(((MAX_W - w) / 2, current_h+ BIG_H_SPACE), line, TEXT_COLOR, font=NORMAL)
+            current_h += h + pad
 
     background.save("%s/%s.png" % (save_in_folder.strip('/'), identifier))
