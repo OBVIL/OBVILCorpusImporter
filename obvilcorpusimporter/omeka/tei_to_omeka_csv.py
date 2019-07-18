@@ -33,10 +33,11 @@ def tei_to_omeka_header(csv_header_info):
         u"#fileDesc#sourceDesc#bibl_pubPlace": u"pubPlace",
         u"#fileDesc#sourceDesc#bibl_date": u"dc:date",
         u"#profileDesc#langUsage_language_ident": u"dc:language",
+        u"#fileDesc#sourceDesc#bibl_ref_target":u"dc:relation",
         u"#fileDesc#publicationStmt_idno": u"dc:identifier",  # Obligatoire
         u"#fileDesc#publicationStmt#availability_licence_target": u"dc:rights",
-        u"#fileDesc#sourceDesc#bibl_ref_target":u"dc:relation",
     }
+
 
     new_csv_header_info = {xml_tag_to_voc.get(k, k): v for (k, v) in csv_header_info.items()}
 
@@ -115,15 +116,16 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
                 del csv_header_info["pubPlace"]
 
             # Normalized dc:language
-            lang_normalized = {'fr':'fre','en':'eng','it':'ita', 'la':'lat'}
-            if csv_header_info[u"dc:language"] in lang_normalized.keys():
-                not_normalized = csv_header_info[u"dc:language"]
-                csv_header_info[u"dc:language"] = lang_normalized[not_normalized]
+            lang_normalized = {'fr':'fre','en':'eng','it':'ita', 'la':'lat', 'es':'spa'}
+            if u"dc:language" in csv_header_info:
+                if csv_header_info[u"dc:language"] in lang_normalized.keys():
+                    not_normalized = csv_header_info[u"dc:language"]
+                    csv_header_info[u"dc:language"] = lang_normalized[not_normalized]
 
             # author for vignette
-            author = csv_header_info.get("dc:creator", "Anonyme")
-            if ";" in author:
-                author = author.replace(";","\n")
+            author_vignette = csv_header_info.get("dc:creator", "Anonyme")
+            if ";" in author_vignette:
+                author_vignette = author_vignette.replace(";","\n")
 
 
             # Producing the vignette
@@ -131,7 +133,7 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
             create_image(
                 identifier=image_identifier,
                 title=csv_header_info.get("dc:title", "Sans titre"),
-                author=author,
+                author=author_vignette,
                 save_in_folder=omeka_csv_folder
             )
 
@@ -150,8 +152,6 @@ def parse_tei_documents(corpora, omeka_csv_folder='crawled_data'):
             corpus_info[document_file] = csv_header_info
             csv_headers.update(csv_header_info.keys())
             del document
-
-
 
         csv_file = u'%s/%s.csv' % (omeka_csv_folder, corpus_tag)
 
