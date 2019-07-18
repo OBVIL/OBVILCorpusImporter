@@ -9,7 +9,8 @@ from spiders.obvil_bib_spider import (
     ObvilBaseCritiqueSpider,
     ObvilEcoleSpider,
     ObvilMoliereSpider,
-    ObvilGongoraSpider
+    ObvilGongoraSpider,
+    ObvilSainteBeuveSpider
 )
 
 from omeka.tei_to_omeka_csv import parse_tei_documents
@@ -28,7 +29,8 @@ import json
         ObvilBaseCritiqueSpider,
         ObvilEcoleSpider,
         ObvilMoliereSpider,
-        ObvilGongoraSpider
+        ObvilGongoraSpider,
+        ObvilSainteBeuveSpider
     ]
 
     process = CrawlerProcess({
@@ -41,7 +43,12 @@ import json
 
 def crawl_obvil(save_directory='crawled_data'):
     """ Crawl the OBVIL Library."""
-    spiders = [ObvilBibTEISpider]
+    spiders = [ObvilBibTEISpider,
+        ObvilBaseCritiqueSpider,
+        ObvilEcoleSpider,
+        ObvilGongoraSpider,
+        ObvilMoliereSpider,
+    ]
 
     process = CrawlerProcess({
         'USER_AGENT': 'Pasted from github (+https://github.com/Valerie-Hanoka)'
