@@ -36,11 +36,16 @@ def tei_to_nakala_header(csv_header_info):
         u"#fileDesc#titleStmt_author_key": u"creator",
         u"#fileDesc#sourceDesc#bibl_publisher": u"publisher",
         u"#fileDesc#sourceDesc#bibl_pubPlace": u"pubPlace",
-        u"#fileDesc#sourceDesc#bibl_date": u"date",
         u"#profileDesc#langUsage_language_ident": u"language",
         u"#fileDesc#sourceDesc#bibl_ref_target":u"relation",
         u"#fileDesc#publicationStmt_idno": u"identifier",  # Obligatoire
         u"#fileDesc#publicationStmt#availability_licence_target": u"rights",
+
+        #TODO: Se fixer sur la selection de la date
+        u"#fileDesc#sourceDesc#bibl_date": u"date",
+        u"#profileDesc#creation_date_when": u"created",
+        # autre ...
+
     }
 
 
@@ -109,7 +114,6 @@ def parse_tei_documents(corpora, nakala_csv_folder='crawled_data'):
 
             csv_header_info["identifier"] = document.OMEKA_SPLIT_CHAR.join(links_to_document)
             """
-
             #Delete 'dcterms:source'
             if u"dcterms:source" in csv_header_info:
                 del csv_header_info["dcterms:source"]
@@ -155,6 +159,12 @@ def parse_tei_documents(corpora, nakala_csv_folder='crawled_data'):
             # Add 'type'
             csv_header_info['type'] = u'Text'
 
+            # Date of creation of the resource
+            is_created = csv_header_info.get(u"created", False)
+            is_date = csv_header_info.get(u"date", "19/07/2019")
+            if not is_created:
+                csv_header_info[u"created"] = csv_header_info.get(u"created", is_date)
+
             del document
 
             ### Write metadata in NAKALA format
@@ -163,4 +173,3 @@ def parse_tei_documents(corpora, nakala_csv_folder='crawled_data'):
                 fout.write('METADONNEES,VALEURS\n')
                 for md_name, md_value in csv_header_info.items():
                     fout.write('%s,"%s"\n' %(md_name, md_value))
-
