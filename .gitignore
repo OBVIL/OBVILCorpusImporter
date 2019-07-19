@@ -112,3 +112,6 @@ include/
 # project
 configs/
 obvilcorpusimporter/crawled_data
+
+# vim
+.swp
