@@ -63,8 +63,8 @@ class ObvilBaseSpider(scrapy.Spider):
                 file_info['file_name']
             )
 
-        with open(url_list_filename, 'a') as f:
-            f.write(u"%s\t%s\n" % (file_info['file_ext'], response.url))
+        #with open(url_list_filename, 'a') as f:
+        #    f.write(u"%s\t%s\n" % (file_info['file_ext'], response.url))
 
         yield file_info
 

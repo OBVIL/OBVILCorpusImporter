@@ -81,7 +81,8 @@ def parse_tei_documents(corpora, nakala_csv_folder='crawled_data'):
 
             logging.info(u"Parsing %s" % document_file)
             document = tcscraper.TeiContent(document_file, corpus_tag)
-            csv_header_info = document.header_to_nakala_dict()
+            # Voir pour modifier ici
+            csv_header_info = document.header_to_omeka_dict()
 
             # Translating TEI headers to Semantic Web relations
             csv_header_info = tei_to_nakala_header(csv_header_info)
@@ -157,9 +158,9 @@ def parse_tei_documents(corpora, nakala_csv_folder='crawled_data'):
             del document
 
             ### Write metadata in NAKALA format
-            csv_file = u'%s/%s.csv' % (nakala_csv_folder, corpus_tag)
+            csv_file = document_file.replace('.xml', '.csv')
             with open(csv_file, 'w', encoding="utf-8") as fout:
                 fout.write('METADONNEES,VALEURS\n')
                 for md_name, md_value in csv_header_info.items():
-                    fout.write('%s,"%s"\n' %(md_name, md_value)
+                    fout.write('%s,"%s"\n' %(md_name, md_value))
 
