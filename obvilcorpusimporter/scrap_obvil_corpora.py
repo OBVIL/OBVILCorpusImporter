@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import re
 from optparse import OptionParser
 
 from scrapy.crawler import CrawlerProcess
@@ -13,7 +14,8 @@ from spiders.obvil_bib_spider import (
     ObvilSainteBeuveSpider
 )
 
-from omeka.tei_to_omeka_csv import parse_tei_documents
+from omeka.tei_to_omeka_csv import parse_tei_documents as parse_tei_documents_omeka
+from nakala.tei_to_nakala_csv import parse_tei_documents as parse_tei_documents_nakala
 
 import logging
 import json
@@ -95,7 +97,11 @@ if __name__ == "__main__":
             debug_size = config.get("debug_size", None)
             corpora = config["corpora"]
 
-        parse_tei_documents(corpora, omeka_csv_folder=options.save_directory)
+        #TODO: Améliorer la logique ... Hack rapide
+        if re.search("omeka", options.config_file):
+            parse_tei_documents_omeka(corpora, omeka_csv_folder=options.save_directory)
+        elif re.search("nakala", options.config_file):
+            parse_tei_documents_nakala(corpora, nakala_csv_folder=options.save_directory)
     else:
         logging.error("No configuration file given for TEI metadata extraction")
         exit(1)
