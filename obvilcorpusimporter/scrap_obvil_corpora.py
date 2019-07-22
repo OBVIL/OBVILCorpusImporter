@@ -88,7 +88,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     # Crawling
-    crawl_obvil(options.save_directory)
+    #crawl_obvil(options.save_directory)
 
     # Extracting XML-TEI documents metadata
     if options.config_file:
@@ -102,6 +102,11 @@ if __name__ == "__main__":
             parse_tei_documents_omeka(corpora, omeka_csv_folder=options.save_directory)
         elif re.search("nakala", options.config_file):
             parse_tei_documents_nakala(corpora, nakala_csv_folder=options.save_directory)
+        else:
+            logging.error("""Your config file should be named:
+                    - 'config_omeka.json' or
+                    - 'config_nakala.json'""")
+            exit(1)
     else:
         logging.error("No configuration file given for TEI metadata extraction")
         exit(1)
