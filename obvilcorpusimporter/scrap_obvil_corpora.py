@@ -88,7 +88,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     # Crawling
-    #crawl_obvil(options.save_directory)
+    crawl_obvil(options.save_directory)
 
     # Extracting XML-TEI documents metadata
     if options.config_file:
