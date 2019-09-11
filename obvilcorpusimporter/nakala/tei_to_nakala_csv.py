@@ -42,8 +42,9 @@ def tei_to_nakala_header(csv_header_info):
         u"#fileDesc#publicationStmt#availability_licence_target": u"rights",
 
         #TODO: Se fixer sur la selection de la date
-        u"#fileDesc#sourceDesc#bibl_date": u"date",
+        u"#fileDesc#sourceDesc#bibl_date": u"created",
         u"#profileDesc#creation_date_when": u"created",
+        # notBefore, notAfter
         # autre ...
 
     }
