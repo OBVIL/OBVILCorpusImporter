@@ -23,31 +23,15 @@ import json
 #                          CRAWLING
 ###########################################################
 
-"""def crawl_obvil(save_directory='crawled_data'):
-    spiders = [
-        ObvilBibTEISpider,
-        ObvilBaseCritiqueSpider,
-        ObvilEcoleSpider,
-        ObvilMoliereSpider,
-        ObvilGongoraSpider,
-        ObvilSainteBeuveSpider
-    ]
-
-    process = CrawlerProcess({
-        'USER_AGENT': 'Pasted from github (+https://github.com/Valerie-Hanoka)'
-    })
-
-    for spider in spiders:
-        process.crawl(spider, save_directory=save_directory)
-    process.start()"""
-
 def crawl_obvil(save_directory='crawled_data'):
     """ Crawl the OBVIL Library."""
-    spiders = [ObvilBibTEISpider,
-        ObvilBaseCritiqueSpider,
-        ObvilEcoleSpider,
-        ObvilGongoraSpider,
-        ObvilMoliereSpider,
+    spiders = [
+            ObvilBibTEISpider,
+            ObvilBaseCritiqueSpider,
+            ObvilEcoleSpider,
+            ObvilMoliereSpider,
+            ObvilGongoraSpider,
+            ObvilSainteBeuveSpider
     ]
 
     process = CrawlerProcess({
