@@ -177,21 +177,27 @@ class TeiContent(DocumentContent):
                     except ValueError:
                         text = child.text
                     (normalized_text, normalized_tag) = self.__normalize_metadata(text, child.tag)
+                else:
+                    # Self-closing element
+                    (normalized_text, normalized_tag) = self.__normalize_metadata("", child.tag)
 
+                element_information = merge_two_dicts(
+                    {u'%s#%s' % (element_tag, normalized_tag): (self._ATTR_CMPT, normalized_text)},
+                    element_information
+                )
+
+                for attribute_key, attribute_value in child.attrib.items():
+                    (normalized_attribute_value, normalized_attribute_key) =\
+                        self.__normalize_metadata(attribute_value, normalized_tag + ':' + attribute_key)
                     element_information = merge_two_dicts(
-                        {u'%s#%s' % (element_tag, normalized_tag): (self._ATTR_CMPT, normalized_text)},
+                        {u'%s#%s' % (element_tag, normalized_attribute_key):
+                             (self._ATTR_CMPT, normalized_attribute_value)},
                         element_information
                     )
-                    for attribute_key, attribute_value in child.attrib.items():
-                        (normalized_attribute_value, normalized_attribute_key) =\
-                            self.__normalize_metadata(attribute_value, normalized_tag + ':' + attribute_key)
-                        element_information = merge_two_dicts(
-                            {u'%s#%s' % (element_tag, normalized_attribute_key):
-                                 (self._ATTR_CMPT, normalized_attribute_value)},
-                            element_information
-                        )
-                    self._ATTR_CMPT += 1
+                self._ATTR_CMPT += 1
+
         return element_information
+
 
     def __normalize_metadata(self, value, key):
         """When parsing key - values pairs from the XML metadata,
